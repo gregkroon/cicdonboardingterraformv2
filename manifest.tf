@@ -57,8 +57,8 @@ depends_on = [harness_platform_secret_text.awssecret]
 
   org_id      = var.HARNESS_ORG_ID
   project_id  = var.HARNESS_PROJECT_ID
-  identifier = var.HARNESS_AWS_CONNECTOR_ID
-  name = var.HARNESS_AWS_CONNECTOR_ID
+  identifier = "HARNESS_AWS_CONNECTOR"
+  name = "HARNESS_AWS_CONNECTOR"
 
    manual {
     access_key = var.AWS_ACCESS_KEY
@@ -74,15 +74,14 @@ resource "harness_platform_connector_github" "github_connector" {
 
   org_id      = var.HARNESS_ORG_ID
   project_id  = var.HARNESS_PROJECT_ID
-  identifier = var.HARNESS_GITHUB_CONNECTOR_ID
+  identifier = "HARNESS_GITHUB_CONNECTOR_ID"
   connection_type = "Account"
-  name = var.HARNESS_GITHUB_CONNECTOR_ID
+  name = "HARNESS_GITHUB_CONNECTOR_ID"
   url =  var.HARNESS_GITHUB_URL
 
   credentials {
     http {
       username = var.GITHUB_USER
-      //username_ref = var.GITHUB_USER_REF
       token_ref    = "HARNESS_GITHUB_SECRET"
     }
   }
@@ -118,7 +117,7 @@ service:
               store:
                 type: Github
                 spec:
-                  connectorRef: account.Github
+                  connectorRef: HARNESS_GITHUB_CONNECTOR_ID
                   gitFetchType: Branch
                   paths:
                     - deployment.yaml
@@ -188,7 +187,7 @@ resource "harness_platform_pipeline" "example" {
     branch_name    = "main"
     commit_message = "commitMessage"
     #file_path      = ${var.project_id
-    connector_ref  = "account.Github"
+    connector_ref  = "HARNESS_GITHUB_CONNECTOR_ID"
     store_type     = "INLINE"
     repo_name      = var.HARNESS_PROJECT_ID
   }
@@ -260,7 +259,7 @@ pipeline:
                         store:
                           type: Github
                           spec:
-                            connectorRef: account.Github
+                            connectorRef: HARNESS_GITHUB_CONNECTOR_ID
                             gitFetchType: Branch
                             paths:
                               - deployment.yaml
@@ -273,7 +272,7 @@ pipeline:
                 artifacts:
                   primary:
                     spec:
-                      connectorRef: account.awskey
+                      connectorRef: HARNESS_AWS_CONNECTOR
                       imagePath: kotlin
                       tag: <+pipeline.stages.Build.spec.execution.steps.BuildAndPushECR.artifact_BuildAndPushECR.stepArtifacts.publishedImageArtifacts[0].tag>
                       digest: ""
@@ -348,7 +347,7 @@ pipeline:
   properties:
     ci:
       codebase:
-        connectorRef: account.Github
+        connectorRef: HARNESS_GITHUB_CONNECTOR_ID
         repoName: spring-petclinic-kotlin
         build:
           type: branch
@@ -387,7 +386,7 @@ trigger:
       spec:
         type: PullRequest
         spec:
-          connectorRef: account.Github
+          connectorRef: HARNESS_GITHUB_CONNECTOR_ID
           autoAbortPreviousExecutions: false
           payloadConditions:
             - key: targetBranch
