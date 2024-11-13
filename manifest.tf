@@ -19,6 +19,75 @@ resource "harness_platform_project" "project" {
   description = "Example project description"
 }
 
+
+
+resource "harness_platform_secret_text" "githubsecret" {
+
+  depends_on = [harness_platform_project.project]
+ 
+  org_id      = var.HARNESS_ORG_ID
+  project_id  = var.HARNESS_PROJECT_ID
+  name =  "HARNESS_GITHUB_SECRET"
+  identifier = "HARNESS_GITHUB_SECRET"
+  secret_manager_identifier = "harnessSecretManager"
+  value = var.HARNESS_GITHUB_SECRET_VALUE
+  value_type = "Inline"
+  
+}
+
+resource "harness_platform_secret_text" "awssecret" {
+
+  depends_on = [harness_platform_project.project]
+ 
+  org_id      = var.HARNESS_ORG_ID
+  project_id  = var.HARNESS_PROJECT_ID
+  name = "AWS_SECRET_KEY"
+  identifier = "AWS_SECRET_KEY"
+  secret_manager_identifier = "harnessSecretManager"
+  value = var.AWS_SECRET_KEY
+  value_type = "Inline"
+
+  
+}
+
+
+resource "harness_platform_connector_aws" "aws_connector" {
+
+depends_on = [harness_platform_secret_text.awssecret]
+
+  org_id      = var.HARNESS_ORG_ID
+  project_id  = var.HARNESS_PROJECT_ID
+  identifier = var.HARNESS_AWS_CONNECTOR_ID
+  name = var.HARNESS_AWS_CONNECTOR_ID
+
+   manual {
+    access_key = var.AWS_ACCESS_KEY
+    secret_key_ref = "AWS_SECRET_KEY"
+
+}
+}
+
+
+resource "harness_platform_connector_github" "github_connector" {
+
+  depends_on = [harness_platform_secret_text.githubsecret]
+
+  org_id      = var.HARNESS_ORG_ID
+  project_id  = var.HARNESS_PROJECT_ID
+  identifier = var.HARNESS_GITHUB_CONNECTOR_ID
+  connection_type = "Account"
+  name = var.HARNESS_GITHUB_CONNECTOR_ID
+  url =  var.HARNESS_GITHUB_URL
+
+  credentials {
+    http {
+      username = var.GITHUB_USER
+      //username_ref = var.GITHUB_USER_REF
+      token_ref    = "HARNESS_GITHUB_SECRET"
+    }
+  }
+
+
 resource "harness_platform_service" "example" {
   depends_on = [harness_platform_project.project]
   identifier  = var.HARNESS_PROJECT_ID
