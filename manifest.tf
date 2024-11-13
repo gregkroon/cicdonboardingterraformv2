@@ -59,11 +59,11 @@ depends_on = [harness_platform_secret_text.awssecret]
   project_id  = var.HARNESS_PROJECT_ID
   identifier = "HARNESS_AWS_CONNECTOR"
   name = "HARNESS_AWS_CONNECTOR"
+  execute_on_delegate = false
 
    manual {
     access_key = var.AWS_ACCESS_KEY
     secret_key_ref = "AWS_SECRET_KEY"
-    execute_on_delegate = false
 
 }
 }
