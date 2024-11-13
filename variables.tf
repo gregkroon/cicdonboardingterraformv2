@@ -25,20 +25,10 @@ variable "AWS_SECRET_KEY" {
   sensitive   = true
 }
 
-variable "HARNESS_AWS_CONNECTOR_ID" {
-  description = "The identifier for the Harness AWS connector"
-  type        = string
-}
-
 variable "AWS_ACCESS_KEY" {
   description = "The access key for AWS"
   type        = string
   sensitive   = true
-}
-
-variable "HARNESS_GITHUB_CONNECTOR_ID" {
-  description = "The identifier for the Harness GitHub connector"
-  type        = string
 }
 
 variable "HARNESS_GITHUB_URL" {
