@@ -85,6 +85,7 @@ resource "harness_platform_connector_github" "github_connector" {
       token_ref    = "HARNESS_GITHUB_SECRET"
     }
   }
+}
 
 
 resource "harness_platform_service" "example" {
