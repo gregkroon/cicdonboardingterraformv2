@@ -59,7 +59,7 @@ depends_on = [harness_platform_secret_text.awssecret]
   project_id  = var.HARNESS_PROJECT_ID
   identifier = "HARNESS_AWS_CONNECTOR"
   name = "HARNESS_AWS_CONNECTOR"
-  execute_on_delegate = false
+
 
    manual {
     access_key = var.AWS_ACCESS_KEY
@@ -79,7 +79,6 @@ resource "harness_platform_connector_github" "github_connector" {
   connection_type = "Account"
   name = "HARNESS_GITHUB_CONNECTOR_ID"
   url =  var.HARNESS_GITHUB_URL
-  execute_on_delegate = false
 
   credentials {
     http {
