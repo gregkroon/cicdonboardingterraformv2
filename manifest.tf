@@ -79,7 +79,7 @@ resource "harness_platform_connector_github" "github_connector" {
   connection_type = "Account"
   name = "HARNESS_GITHUB_CONNECTOR_ID"
   url =  var.HARNESS_GITHUB_URL
-  execute_on_delegate = true
+  execute_on_delegate = false
 
   credentials {
     http {
