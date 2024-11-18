@@ -1,0 +1,44 @@
+template:
+  name: KotlinTemplate
+  type: Stage
+  projectIdentifier: testkotlin
+  orgIdentifier: default
+  spec:
+    type: CI
+    spec:
+      cloneCodebase: true
+      caching:
+        enabled: true
+      platform:
+        os: Linux
+        arch: Amd64
+      runtime:
+        type: Cloud
+        spec: {}
+      execution:
+        steps:
+          - step:
+              type: Run
+              name: Test
+              identifier: Test
+              spec:
+                connectorRef: account.harnessImage
+                image: gradle:jdk17
+                shell: Sh
+                command: ./gradlew test
+              when:
+                stageStatus: Success
+          - step:
+              type: BuildAndPushECR
+              name: BuildAndPushECR
+              identifier: BuildAndPushECR
+              spec:
+                connectorRef: account.awskey
+                region: ap-southeast-2
+                account: "759984737373"
+                imageName: 759984737373.dkr.ecr.ap-southeast-2.amazonaws.com/kotlin
+                tags:
+                  - <+pipeline.sequenceId>
+                caching: true
+  identifier: KotlinTemplate
+  versionLabel: Version1
