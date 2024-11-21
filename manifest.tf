@@ -278,37 +278,8 @@ trigger:
   tags: {}
   orgIdentifier: default
   stagesToExecute: []
-  projectIdentifier: ${var.HARNESS_PROJECT_ID}
-  pipelineIdentifier: ${var.HARNESS_PROJECT_ID}
-  source:
-    type: Webhook
-    spec:
-      type: Github
-      spec:
-        type: PullRequest
-        spec:
-          connectorRef: HARNESS_GITHUB_CONNECTOR_ID
-          autoAbortPreviousExecutions: false
-          payloadConditions:
-            - key: targetBranch
-              operator: Equals
-              value: main
-          headerConditions: []
-          repoName: ${var.HARNESS_PROJECT_ID}
-          actions:
-            - Close
-  inputYaml: |
-    trigger:
-  name: PR trigger
-  identifier: PR_trigger
-  enabled: true
-  encryptedWebhookSecretIdentifier: ""
-  description: ""
-  tags: {}
-  orgIdentifier: default
-  stagesToExecute: []
-  projectIdentifier: ${var.HARNESS_PROJECT_ID}
-  pipelineIdentifier: ${var.HARNESS_PROJECT_ID}
+  projectIdentifier: petclinic
+  pipelineIdentifier: petclinic
   source:
     type: Webhook
     spec:
@@ -329,56 +300,58 @@ trigger:
   inputYaml: |
     pipeline:
       identifier: ${var.HARNESS_PROJECT_ID}
-      stages:
-        - stage:
-            identifier: Build
-            type: CI
-            spec:
-              execution:
-                steps:
-                  - step:
-                      identifier: BuildAndPushECR
-                      type: BuildAndPushECR
-                      spec:
-                        connectorRef: HARNESS_AWS_CONNECTOR
-        - stage:
-            identifier: dep
-            type: Deployment
-            spec:
-              serviceConfig:
-                serviceRef: ${var.HARNESS_PROJECT_ID}
-                serviceDefinition:
-                  type: Kubernetes
-                  spec:
-                    manifests:
-                      - manifest:
-                          identifier: petclinic
-                          type: K8sManifest
+      template:
+        templateInputs:
+          stages:
+            - stage:
+                identifier: Build
+                type: CI
+                spec:
+                  execution:
+                    steps:
+                      - step:
+                          identifier: BuildAndPushECR
+                          type: BuildAndPushECR
                           spec:
-                            store:
-                              type: Github
+                            connectorRef: HARNESS_AWS_CONNECTOR
+            - stage:
+                identifier: dep
+                type: Deployment
+                spec:
+                  serviceConfig:
+                    serviceRef: ${var.HARNESS_PROJECT_ID}
+                    serviceDefinition:
+                      type: Kubernetes
+                      spec:
+                        manifests:
+                          - manifest:
+                              identifier: petclinic
+                              type: K8sManifest
                               spec:
-                                connectorRef: HARNESS_GITHUB_CONNECTOR_ID
-                    artifacts:
-                      primary:
-                        type: Ecr
-                        spec:
-                          connectorRef: HARNESS_AWS_CONNECTOR
-              infrastructure:
-                environmentRef: Development
-                infrastructureDefinition:
-                  type: KubernetesDirect
+                                store:
+                                  type: Github
+                                  spec:
+                                    connectorRef: HARNESS_GITHUB_CONNECTOR_ID
+                        artifacts:
+                          primary:
+                            type: Ecr
+                            spec:
+                              connectorRef: HARNESS_AWS_CONNECTOR
+                  infrastructure:
+                    environmentRef: Development
+                    infrastructureDefinition:
+                      type: KubernetesDirect
+                      spec:
+                        connectorRef: account.developmentcluster
+          properties:
+            ci:
+              codebase:
+                connectorRef: HARNESS_GITHUB_CONNECTOR_ID
+                repoName: ${var.HARNESS_PROJECT_ID}
+                build:
+                  type: branch
                   spec:
-                    connectorRef: account.developmentcluster
-      properties:
-        ci:
-          codebase:
-            connectorRef: HARNESS_GITHUB_CONNECTOR_ID
-            repoName: ${var.HARNESS_PROJECT_ID}
-            build:
-              type: branch
-              spec:
-                branch: <+trigger.branch>
+                    branch: <+trigger.branch>
 
   EOT
   }   
