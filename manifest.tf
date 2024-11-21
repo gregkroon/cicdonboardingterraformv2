@@ -201,165 +201,60 @@ yaml = <<-EOF
 pipeline:
   name: ${var.HARNESS_PROJECT_ID}
   identifier: ${var.HARNESS_PROJECT_ID}
-  allowStageExecutions: false
-  projectIdentifier: ${var.HARNESS_PROJECT_ID}
-  orgIdentifier: ${var.HARNESS_ORG_ID}
   tags: {}
-  stages:
-    - stage:
-        name: Build
-        identifier: Build
-        description: ""
-        type: CI
-        spec:
-          cloneCodebase: true
-          caching:
-            enabled: true
-          platform:
-            os: Linux
-            arch: Amd64
-          runtime:
-            type: Cloud
-            spec: {}
-          execution:
-            steps:
-              - step:
-                  type: Run
-                  name: Test
-                  identifier: Test
-                  spec:
-                    connectorRef: account.harnessImage
-                    image: gradle:jdk17
-                    shell: Sh
-                    command: ./gradlew test
-                  when:
-                    stageStatus: Success
-              - step:
-                  type: BuildAndPushECR
-                  name: BuildAndPushECR
-                  identifier: BuildAndPushECR
-                  spec:
-                    connectorRef: account.awskey
-                    region: ap-southeast-2
-                    account: "759984737373"
-                    imageName: 759984737373.dkr.ecr.ap-southeast-2.amazonaws.com/kotlin
-                    tags:
-                      - <+pipeline.sequenceId>
-                    caching: true
-    - stage:
-        name: Development
-        identifier: dep
-        description: ""
-        type: Deployment
-        spec:
-          serviceConfig:
-            serviceRef: ${var.HARNESS_PROJECT_ID}
-            serviceDefinition:
-              type: Kubernetes
-              spec:
-                manifests:
-                  - manifest:
-                      identifier: petclinic
-                      type: K8sManifest
+  template:
+    templateRef: account.KotlinTemplate
+    versionLabel: Version1
+    templateInputs:
+      stages:
+        - stage:
+            identifier: Build
+            type: CI
+            spec:
+              execution:
+                steps:
+                  - step:
+                      identifier: BuildAndPushECR
+                      type: BuildAndPushECR
                       spec:
-                        store:
-                          type: Github
+                        connectorRef: <+input>
+        - stage:
+            identifier: dep
+            type: Deployment
+            spec:
+              serviceConfig:
+                serviceRef: <+input>
+                serviceDefinition:
+                  type: Kubernetes
+                  spec:
+                    manifests:
+                      - manifest:
+                          identifier: petclinic
+                          type: K8sManifest
                           spec:
-                            connectorRef: HARNESS_GITHUB_CONNECTOR_ID
-                            gitFetchType: Branch
-                            paths:
-                              - deployment.yaml
-                            repoName: ${var.HARNESS_PROJECT_ID}
-                            branch: main
-                        valuesPaths:
-                          - values.yaml
-                        skipResourceVersioning: false
-                        enableDeclarativeRollback: false
-                artifacts:
-                  primary:
-                    spec:
-                      connectorRef: HARNESS_AWS_CONNECTOR
-                      imagePath: kotlin
-                      tag: <+pipeline.stages.Build.spec.execution.steps.BuildAndPushECR.artifact_BuildAndPushECR.stepArtifacts.publishedImageArtifacts[0].tag>
-                      digest: ""
-                      region: ap-southeast-2
-                    type: Ecr
-          infrastructure:
-            environmentRef: Development
-            infrastructureDefinition:
-              type: KubernetesDirect
-              spec:
-                connectorRef: account.developmentcluster
-                namespace: default
-                releaseName: release-<+INFRA_KEY>
-            allowSimultaneousDeployments: false
-          execution:
-            steps:
-              - stepGroup:
-                  name: Canary Deployment
-                  identifier: canaryDepoyment
-                  steps:
-                    - step:
-                        name: Canary Deployment
-                        identifier: canaryDeployment
-                        type: K8sCanaryDeploy
-                        timeout: 10m
+                            store:
+                              type: Github
+                              spec:
+                                connectorRef: <+input>
+                    artifacts:
+                      primary:
+                        type: Ecr
                         spec:
-                          instanceSelection:
-                            type: Count
-                            spec:
-                              count: 1
-                          skipDryRun: false
-                    - step:
-                        name: Canary Delete
-                        identifier: canaryDelete
-                        type: K8sCanaryDelete
-                        timeout: 10m
-                        spec: {}
-                  rollbackSteps:
-                    - step:
-                        name: Canary Delete
-                        identifier: rollbackCanaryDelete
-                        type: K8sCanaryDelete
-                        timeout: 10m
-                        spec: {}
-              - stepGroup:
-                  name: Primary Deployment
-                  identifier: primaryDepoyment
-                  steps:
-                    - step:
-                        name: Rolling Deployment
-                        identifier: rollingDeployment
-                        type: K8sRollingDeploy
-                        timeout: 10m
-                        spec:
-                          skipDryRun: false
-                  rollbackSteps:
-                    - step:
-                        name: Rolling Rollback
-                        identifier: rollingRollback
-                        type: K8sRollingRollback
-                        timeout: 10m
-                        spec: {}
-            rollbackSteps: []
-          rollbackSteps: []
-        tags: {}
-        failureStrategies:
-          - onFailure:
-              errors:
-                - AllErrors
-              action:
-                type: StageRollback
-  properties:
-    ci:
-      codebase:
-        connectorRef: HARNESS_GITHUB_CONNECTOR_ID
-        repoName: spring-petclinic-kotlin
-        build:
-          type: branch
-          spec:
-            branch: main
-        sparseCheckout: []
+                          connectorRef: <+input>
+              infrastructure:
+                environmentRef: <+input>
+                infrastructureDefinition:
+                  type: KubernetesDirect
+                  spec:
+                    connectorRef: <+input>
+      properties:
+        ci:
+          codebase:
+            connectorRef: <+input>
+            repoName: <+input>
+            build: <+input>
+  projectIdentifier: ${var.HARNESS_PROJECT_ID}
+  orgIdentifier: default
 EOF
 }
 
