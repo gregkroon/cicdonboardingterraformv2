@@ -341,7 +341,7 @@ trigger:
                   type: KubernetesDirect
                   spec:
                     connectorRef: account.developmentcluster
-      properties:
+    properties:
         ci:
           codebase:
             connectorRef: HARNESS_GITHUB_CONNECTOR_ID
