@@ -402,5 +402,58 @@ trigger:
           repoName: ${var.HARNESS_PROJECT_ID}
           actions:
             - Close
+  inputYaml: |
+    pipeline:
+      identifier: ${var.HARNESS_PROJECT_ID}
+      stages:
+        - stage:
+            identifier: Build
+            type: CI
+            spec:
+              execution:
+                steps:
+                  - step:
+                      identifier: BuildAndPushECR
+                      type: BuildAndPushECR
+                      spec:
+                        connectorRef: HARNESS_AWS_CONNECTOR
+        - stage:
+            identifier: dep
+            type: Deployment
+            spec:
+              serviceConfig:
+                serviceRef: ${var.HARNESS_PROJECT_ID}
+                serviceDefinition:
+                  type: Kubernetes
+                  spec:
+                    manifests:
+                      - manifest:
+                          identifier: petclinic
+                          type: K8sManifest
+                          spec:
+                            store:
+                              type: Github
+                              spec:
+                                connectorRef: HARNESS_GITHUB_CONNECTOR_ID
+                    artifacts:
+                      primary:
+                        type: Ecr
+                        spec:
+                          connectorRef: HARNESS_AWS_CONNECTOR
+              infrastructure:
+                environmentRef: Development
+                infrastructureDefinition:
+                  type: KubernetesDirect
+                  spec:
+                    connectorRef: account.developmentcluster
+      properties:
+        ci:
+          codebase:
+            connectorRef: HARNESS_GITHUB_CONNECTOR_ID
+            repoName: ${var.HARNESS_PROJECT_ID}
+            build:
+              type: branch
+              spec:
+                branch: <+trigger.branch>
   EOT
   }   
