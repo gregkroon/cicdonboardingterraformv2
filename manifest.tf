@@ -298,6 +298,35 @@ trigger:
           actions:
             - Close
   inputYaml: |
+    trigger:
+  name: PR trigger
+  identifier: PR_trigger
+  enabled: true
+  encryptedWebhookSecretIdentifier: ""
+  description: ""
+  tags: {}
+  orgIdentifier: default
+  stagesToExecute: []
+  projectIdentifier: ${var.HARNESS_PROJECT_ID}
+  pipelineIdentifier: ${var.HARNESS_PROJECT_ID}
+  source:
+    type: Webhook
+    spec:
+      type: Github
+      spec:
+        type: PullRequest
+        spec:
+          connectorRef: HARNESS_GITHUB_CONNECTOR_ID
+          autoAbortPreviousExecutions: false
+          payloadConditions:
+            - key: targetBranch
+              operator: Equals
+              value: main
+          headerConditions: []
+          repoName: ${var.HARNESS_PROJECT_ID}
+          actions:
+            - Close
+  inputYaml: |
     pipeline:
       identifier: ${var.HARNESS_PROJECT_ID}
       stages:
@@ -341,7 +370,7 @@ trigger:
                   type: KubernetesDirect
                   spec:
                     connectorRef: account.developmentcluster
-    properties:
+      properties:
         ci:
           codebase:
             connectorRef: HARNESS_GITHUB_CONNECTOR_ID
@@ -350,5 +379,6 @@ trigger:
               type: branch
               spec:
                 branch: <+trigger.branch>
+
   EOT
   }   
