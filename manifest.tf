@@ -10,6 +10,15 @@ terraform {
   }
 }
 
+resource "aws_ecr_repository" "ecr_repo" {
+  name                 = var.HARNESS_PROJECT_ID
+  image_tag_mutability = "MUTABLE"  
+  image_scanning_configuration {
+    scan_on_push = false
+  }
+}
+
+
 provider "harness" {
   platform_api_key = var.HARNESS_API_KEY
   account_id = var.HARNESS_ACCOUNT_ID
@@ -141,7 +150,7 @@ service:
         primary:
           spec:
             connectorRef: account.awskey
-            imagePath: kotlin
+            imagePath: ${var.HARNESS_PROJECT_ID}
             tag: <+pipeline.stages.Build.spec.execution.steps.BuildAndPushDockerRegistry.artifact_BuildAndPushDockerRegistry.stepArtifacts.publishedImageArtifacts[0].tag>
             digest: ""
             region: ap-southeast-2
