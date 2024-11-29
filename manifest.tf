@@ -3,6 +3,10 @@ terraform {
     harness = {
       source = "harness/harness"
     }
+    aws = {
+      source = "hashicorp/aws"
+      version = "5.78.0"
+    }
   }
 }
 
