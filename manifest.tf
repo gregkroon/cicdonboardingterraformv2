@@ -10,6 +10,10 @@ terraform {
   }
 }
 
+provider "aws" {
+  region  = "ap-southeast-2"
+}
+
 resource "aws_ecr_repository" "ecr_repo" {
   name                 = var.HARNESS_PROJECT_ID
   image_tag_mutability = "MUTABLE"  
