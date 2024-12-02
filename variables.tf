@@ -40,3 +40,13 @@ variable "GITHUB_USER" {
   description = "The GitHub username"
   type        = string
 }
+
+variable "AWS_ACCOUNT_ID" {
+  description = "Aws account id "
+  type        = string
+}
+
+variable "ROLE_NAME" {
+  description = "Aws role name"
+  type        = string
+}
