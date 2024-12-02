@@ -66,6 +66,7 @@ resource "aws_iam_role_policy_attachment" "describe_regions_custom" {
   role       = aws_iam_role.harness_oidc_role.name
   policy_arn = "arn:aws:iam::${var.AWS_ACCOUNT_ID}:policy/DescribeRegions"
 
+}
 
 
 
@@ -134,8 +135,10 @@ depends_on = [harness_platform_secret_text.awssecret]
 
 
    manual {
-    access_key = var.AWS_ACCESS_KEY
-    secret_key_ref = "AWS_SECRET_KEY"
+    #access_key = var.AWS_ACCESS_KEY
+    #secret_key_ref = "AWS_SECRET_KEY"
+    iam_role_arn = aws_iam_role.harness_oidc_role.arn
+    region = "ap-southeast-2"
 
 }
 }
@@ -427,3 +430,4 @@ trigger:
 
   EOT
   }   
+
