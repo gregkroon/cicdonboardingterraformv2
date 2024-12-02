@@ -134,7 +134,7 @@ depends_on = [harness_platform_secret_text.awssecret]
   name = "HARNESS_AWS_CONNECTOR"
 
 
-   manual {
+   oidc_authentication {
     #access_key = var.AWS_ACCESS_KEY
     #secret_key_ref = "AWS_SECRET_KEY"
     iam_role_arn = aws_iam_role.harness_oidc_role.arn
