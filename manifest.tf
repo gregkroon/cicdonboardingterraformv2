@@ -139,6 +139,7 @@ depends_on = [harness_platform_secret_text.awssecret]
     #secret_key_ref = "AWS_SECRET_KEY"
     iam_role_arn = aws_iam_role.harness_oidc_role.arn
     region = "ap-southeast-2"
+    delegate_selectors = []
 
 }
 }
