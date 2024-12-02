@@ -29,6 +29,8 @@ resource "aws_iam_openid_connect_provider" "harness" {
 
 
 resource "aws_iam_role" "harness_oidc_role" {
+depends_on = [aws_iam_openid_connect_provider.harness]
+
   name = var.ROLE_NAME
 
   assume_role_policy = jsonencode({
@@ -54,21 +56,26 @@ resource "aws_iam_role" "harness_oidc_role" {
 
 # Attach Managed Policies to the Role
 resource "aws_iam_role_policy_attachment" "ec2_full_access" {
+
+depends_on = [aws_iam_role.harness_oidc_role]
   role       = aws_iam_role.harness_oidc_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
+depends_on = [aws_iam_role.harness_oidc_role]
   role       = aws_iam_role.harness_oidc_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
 
 resource "aws_iam_role_policy_attachment" "ecr_public_full_access" {
+depends_on = [aws_iam_role.harness_oidc_role]
   role       = aws_iam_role.harness_oidc_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicFullAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "describe_regions_custom" {
+depends_on = [aws_iam_role.harness_oidc_role]
   role       = aws_iam_role.harness_oidc_role.name
   policy_arn = "arn:aws:iam::${var.AWS_ACCOUNT_ID}:policy/DescribeRegions"
 
@@ -77,6 +84,9 @@ resource "aws_iam_role_policy_attachment" "describe_regions_custom" {
 
 
 resource "aws_ecr_repository" "ecr_repo" {
+
+  depends_on = [aws_iam_role.harness_oidc_role]
+
   name                 = var.HARNESS_PROJECT_ID
   image_tag_mutability = "MUTABLE"  
   image_scanning_configuration {
