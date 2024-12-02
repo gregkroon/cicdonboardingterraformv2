@@ -15,15 +15,18 @@ provider "aws" {
 }
 
 
-# OIDC Provider Configuration
+data "aws_iam_openid_connect_provider" "existing" {
+  arn = "arn:aws:iam::${AWS_ACCOUNT_ID}:oidc-provider/app.harness.io/ng/api/oidc/account/${var.HARNESS_ACCOUNT_ID}"
+}
+
 resource "aws_iam_openid_connect_provider" "harness" {
+  count = length(data.aws_iam_openid_connect_provider.existing.arn) == 0 ? 1 : 0
+
   url             = "https://app.harness.io/ng/api/oidc/account/${var.HARNESS_ACCOUNT_ID}"
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = ["9E99A4318253F8A0D8CF9E38A8859E9DA56E8615"]
-  lifecycle {
-    ignore_changes = all
-  }
 }
+
 
 resource "aws_iam_role" "harness_oidc_role" {
   name = var.ROLE_NAME
