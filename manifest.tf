@@ -16,8 +16,9 @@ provider "aws" {
 
 
 data "aws_iam_openid_connect_provider" "existing" {
-  arn = "arn:aws:iam::${AWS_ACCOUNT_ID}:oidc-provider/app.harness.io/ng/api/oidc/account/${var.HARNESS_ACCOUNT_ID}"
+  arn = "arn:aws:iam::${var.AWS_ACCOUNT_ID}:oidc-provider/app.harness.io/ng/api/oidc/account/${var.HARNESS_ACCOUNT_ID}"
 }
+
 
 resource "aws_iam_openid_connect_provider" "harness" {
   count = length(data.aws_iam_openid_connect_provider.existing.arn) == 0 ? 1 : 0
