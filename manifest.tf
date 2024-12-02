@@ -14,6 +14,61 @@ provider "aws" {
   region  = "ap-southeast-2"
 }
 
+
+# OIDC Provider Configuration
+resource "aws_iam_openid_connect_provider" "harness" {
+  url             = "https://app.harness.io/ng/api/oidc/account/${var.HARNESS_ACCOUNT_ID}"
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = ["9E99A4318253F8A0D8CF9E38A8859E9DA56E8615"]
+}
+
+resource "aws_iam_role" "harness_oidc_role" {
+  name = var.ROLE_NAME
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.harness.arn
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "app.harness.io/ng/api/oidc/account/${var.HARNESS_ACCOUNT_ID}:aud" = "sts.amazonaws.com"
+            "app.harness.io/ng/api/oidc/account/${var.HARNESS_ACCOUNT_ID}:sub" = "account/${var.HARNESS_ACCOUNT_ID}:org/${var.HARNESS_ORG_ID}:project/${var.HARNESS_PROJECT_ID}"
+          }
+        }
+      }
+    ]
+  })
+}
+
+
+# Attach Managed Policies to the Role
+resource "aws_iam_role_policy_attachment" "ec2_full_access" {
+  role       = aws_iam_role.harness_oidc_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
+  role       = aws_iam_role.harness_oidc_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "ecr_public_full_access" {
+  role       = aws_iam_role.harness_oidc_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "describe_regions_custom" {
+  role       = aws_iam_role.harness_oidc_role.name
+  policy_arn = "arn:aws:iam::${var.AWS_ACCOUNT_ID}:policy/DescribeRegions"
+
+
+
+
 resource "aws_ecr_repository" "ecr_repo" {
   name                 = var.HARNESS_PROJECT_ID
   image_tag_mutability = "MUTABLE"  
