@@ -40,10 +40,12 @@ depends_on = [aws_iam_openid_connect_provider.harness]
       {
         Effect = "Allow"
         Principal = {
-          Federated = length(aws_iam_openid_connect_provider.harness) > 0 ?
-                      aws_iam_openid_connect_provider.harness[0].arn :
-                      data.aws_iam_openid_connect_provider.existing.arn
-        }
+            Federated = (
+            length(aws_iam_openid_connect_provider.harness) > 0 ?
+            aws_iam_openid_connect_provider.harness[0].arn :
+            data.aws_iam_openid_connect_provider.existing.arn
+                        )
+                    }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringEquals = {
