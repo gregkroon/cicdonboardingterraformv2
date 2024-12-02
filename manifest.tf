@@ -40,7 +40,7 @@ depends_on = [aws_iam_openid_connect_provider.harness]
       {
         Effect = "Allow"
         Principal = {
-          Federated = aws_iam_openid_connect_provider.harness.arn
+          Federated = aws_iam_openid_connect_provider.harness[0].arn
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
