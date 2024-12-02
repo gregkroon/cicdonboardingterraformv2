@@ -67,6 +67,13 @@ depends_on = [aws_iam_role.harness_oidc_role]
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
 }
 
+resource "aws_iam_role_policy_attachment" "ecr_get_auth_token" {
+
+depends_on = [aws_iam_role.harness_oidc_role]
+  role       = aws_iam_role.harness_oidc_role.name
+  policy_arn = "arn:aws:iam::759984737373:policy/ElasticContainerRegistryGetAuthToken"
+}
+
 resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 depends_on = [aws_iam_role.harness_oidc_role]
   role       = aws_iam_role.harness_oidc_role.name
