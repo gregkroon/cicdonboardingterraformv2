@@ -382,8 +382,8 @@ trigger:
   tags: {}
   orgIdentifier: default
   stagesToExecute: []
-  projectIdentifier: petclinic
-  pipelineIdentifier: petclinic
+  projectIdentifier: ${var.HARNESS_PROJECT_ID}
+  pipelineIdentifier: ${var.HARNESS_PROJECT_ID}
   source:
     type: Webhook
     spec:
